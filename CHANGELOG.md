@@ -1,4 +1,7 @@
-## 2.7.2\n\n- flutter_keyboard_visibility 7: version 6 compiles against SDK 31, which AGP 9 refuses.\n\n## [2.7.1] = 2025-07-12
+## [2.7.3] = 2026-11-06
+* flutter_keyboard_visibility 7: version 6 compiles against SDK 31, which AGP 9 refuses
+
+## [2.7.1] = 2025-07-12
 * Update dependencies
 
 ## [2.7.0] = 2025-06-14
