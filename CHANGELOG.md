@@ -1,3 +1,7 @@
+## 2.8.0
+
+- Use material_ui instead of the SDK Material library (Flutter 3.47). flex_color_picker 4.
+
 ## [2.7.3] = 2026-11-06
 * flutter_keyboard_visibility 7: version 6 compiles against SDK 31, which AGP 9 refuses
 
