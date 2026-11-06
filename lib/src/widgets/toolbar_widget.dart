@@ -10,6 +10,8 @@ import 'package:html_editor_enhanced/utils/utils.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
+enum _ColorChoice { reset, apply }
+
 /// Toolbar widget class
 class ToolbarWidget extends StatefulWidget {
   /// The [HtmlEditorController] is mainly used to call the [execCommand] method
@@ -1108,12 +1110,19 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                 } else {
                   newColor = _backColorSelected;
                 }
-                await showDialog(
+                final isForeground =
+                    t.getIcons()[index].icon == Icons.format_color_text;
+                final command = isForeground ? 'foreColor' : 'hiliteColor';
+                widget.controller.saveSelectionAndHideKeyboard();
+                final choice = await showDialog<_ColorChoice>(
                     context: context,
                     builder: (BuildContext context) {
                       return PointerInterceptor(
                         child: AlertDialog(
                           scrollable: true,
+                          insetPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 24),
+                          actionsAlignment: MainAxisAlignment.spaceBetween,
                           content: ColorPicker(
                             color: newColor,
                             onColorChanged: (color) {
@@ -1144,74 +1153,56 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                           ),
                           actions: <Widget>[
                             TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('Cancel'),
+                              onPressed: () =>
+                                  Navigator.of(context).pop(_ColorChoice.reset),
+                              child: const Text('Reset'),
                             ),
-                            TextButton(
-                                onPressed: () {
-                                  if (t.getIcons()[index].icon ==
-                                      Icons.format_color_text) {
-                                    setState(mounted, this.setState, () {
-                                      _foreColorSelected = Colors.black;
-                                    });
-                                    widget.controller.execCommand(
-                                        'removeFormat',
-                                        argument: 'foreColor');
-                                    widget.controller.execCommand('foreColor',
-                                        argument: 'initial');
-                                  }
-                                  if (t.getIcons()[index].icon ==
-                                      Icons.format_color_fill) {
-                                    setState(mounted, this.setState, () {
-                                      _backColorSelected = Colors.yellow;
-                                    });
-                                    widget.controller.execCommand(
-                                        'removeFormat',
-                                        argument: 'hiliteColor');
-                                    widget.controller.execCommand('hiliteColor',
-                                        argument: 'initial');
-                                  }
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Reset to default color')),
-                            TextButton(
-                              onPressed: () {
-                                if (t.getIcons()[index].icon ==
-                                    Icons.format_color_text) {
-                                  widget.controller.execCommand('foreColor',
-                                      argument: (newColor.toARGB32() & 0xFFFFFF)
-                                          .toRadixString(16)
-                                          .padLeft(6, '0')
-                                          .toUpperCase());
-                                  setState(mounted, this.setState, () {
-                                    _foreColorSelected = newColor;
-                                  });
-                                }
-                                if (t.getIcons()[index].icon ==
-                                    Icons.format_color_fill) {
-                                  widget.controller.execCommand('hiliteColor',
-                                      argument: (newColor.toARGB32() & 0xFFFFFF)
-                                          .toRadixString(16)
-                                          .padLeft(6, '0')
-                                          .toUpperCase());
-                                  setState(mounted, this.setState, () {
-                                    _backColorSelected = newColor;
-                                  });
-                                }
-                                setState(mounted, this.setState, () {
-                                  _colorSelected[index] =
-                                      !_colorSelected[index];
-                                });
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('Set color'),
-                            )
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () => Navigator.of(context)
+                                      .pop(_ColorChoice.apply),
+                                  child: const Text('Set'),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
                       );
                     });
+                // The selection comes back first: the commands below act on it.
+                widget.controller.restoreSelection();
+                if (choice == _ColorChoice.reset) {
+                  setState(mounted, this.setState, () {
+                    if (isForeground) {
+                      _foreColorSelected = Colors.black;
+                    } else {
+                      _backColorSelected = Colors.yellow;
+                    }
+                  });
+                  widget.controller
+                      .execCommand('removeFormat', argument: command);
+                  widget.controller.execCommand(command, argument: 'initial');
+                } else if (choice == _ColorChoice.apply) {
+                  widget.controller.execCommand(command,
+                      argument: (newColor.toARGB32() & 0xFFFFFF)
+                          .toRadixString(16)
+                          .padLeft(6, '0')
+                          .toUpperCase());
+                  setState(mounted, this.setState, () {
+                    if (isForeground) {
+                      _foreColorSelected = newColor;
+                    } else {
+                      _backColorSelected = newColor;
+                    }
+                    _colorSelected[index] = !_colorSelected[index];
+                  });
+                }
               }
             }
           },
@@ -1969,7 +1960,8 @@ class ToolbarWidgetState extends State<ToolbarWidget> {
                                                     left: 5, right: 5),
                                                 elevation: 0.0),
                                             onPressed: () async {
-                                              result = await FilePicker.pickFile(
+                                              result =
+                                                  await FilePicker.pickFile(
                                                 type: FileType.image,
                                                 allowedExtensions: widget
                                                     .htmlToolbarOptions

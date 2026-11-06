@@ -72,6 +72,12 @@ class HtmlEditorController {
   /// in case it was changed.
   void clearFocus() {}
 
+  /// Remembers the selection and closes the keyboard, for a dialog over the editor.
+  void saveSelectionAndHideKeyboard() {}
+
+  /// Puts back the selection remembered by [saveSelectionAndHideKeyboard].
+  void restoreSelection() {}
+
   /// disables the Html editor
   void disable() {}
 

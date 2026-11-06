@@ -99,6 +99,22 @@ class HtmlEditorController extends unsupported.HtmlEditorController {
     _evaluateJavascript(source: "\$('#summernote-2').summernote('focus');");
   }
 
+  /// Remembers the selection and closes the keyboard, for a dialog over the editor.
+  @override
+  void saveSelectionAndHideKeyboard() {
+    _evaluateJavascript(
+        source:
+            "\$('#summernote-2').summernote('saveRange'); document.activeElement.blur();");
+    clearFocus();
+  }
+
+  /// Puts back the selection remembered by [saveSelectionAndHideKeyboard].
+  @override
+  void restoreSelection() {
+    _evaluateJavascript(
+        source: "\$('#summernote-2').summernote('restoreRange');");
+  }
+
   /// Clears the editor of any text.
   @override
   void clear() {

@@ -1,3 +1,7 @@
+## 2.8.1
+
+- Color dialog: closes the keyboard, keeps the selection, one row of actions.
+
 ## 2.8.0
 
 - Use material_ui instead of the SDK Material library (Flutter 3.47). flex_color_picker 4.
