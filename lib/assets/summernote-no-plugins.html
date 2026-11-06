@@ -27,6 +27,11 @@
   .note-frame {
       border-radius: 0px;
   }
+  /* WKWebView draws the caret away from the text inside a fixed element once the keyboard
+     scrolls the page, so fullscreen scrolls with the page instead. */
+  .note-editor.note-airframe.fullscreen, .note-editor.note-frame.fullscreen {
+      position: absolute;
+  }
 </style>
 </body>
 </html>

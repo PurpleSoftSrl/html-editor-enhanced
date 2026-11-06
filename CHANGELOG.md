@@ -1,3 +1,7 @@
+## 2.8.2
+
+- iOS: the caret stays on the text in a fullscreen editor while the keyboard is open.
+
 ## 2.8.1
 
 - Color dialog: closes the keyboard, keeps the selection, one row of actions.
